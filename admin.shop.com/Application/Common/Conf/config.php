@@ -25,5 +25,10 @@ return array(
     'DB_RW_SEPARATE'        =>  false,       // 数据库读写是否分离 主从式有效
     'DB_MASTER_NUM'         =>  1, // 读写分离后 主服务器数量
     'DB_SLAVE_NO'           =>  '', // 指定从服务器序号
+    //分页相关的配置
+    'PAGE_SETTING'=>[
+        'PAGE_SIZE'=>5,
+        'PAGE_THEME'=>'%HEADER% %FIRST% %UP_PAGE% %LINK_PAGE% %DOWN_PAGE% %END%',
+    ],
 );
 

@@ -12,47 +12,89 @@ namespace Admin\Controller;
 use Think\Controller;
 
 class SupplierController extends Controller{
+    private $_model = null;
+    //è°ƒçˆ¶ç±»æ–¹æ³•
+    protected function _initialize(){
+        $this->_model = D('Supplier');
+    }
         /**
-         * ÁĞ±íÒ³Ãæ,ÏÔÊ¾¹©»õÉÌÁĞ±í
+         * åˆ—è¡¨é¡µé¢,æ˜¾ç¤ºä¾›è´§å•†åˆ—è¡¨
          */
         public function index(){
-            //´´½¨Ä£ĞÍ¶ÔÏó
-            $supplier_model = D('Supplier');
-            //²éÑ¯Êı¾İ
-            $rows = $supplier_model->select();
-            //´«µİÊı¾İ
-            $this->assign('rows',$rows);
-            //µ÷ÓÃÊÓÍ¼
+            //è·å–æœç´¢å…³é”®è¯
+            $name = I('get.name');
+            $cond['status'] = ['egt',0];
+            if($name){
+                $cond['name']=['like','%'.$name.'%'];
+            }
+            $data = $this->_model->getPageResult($cond);
+            //ä¼ é€’æ•°æ®
+            $this->assign($data);
+            //è°ƒç”¨è§†å›¾
             $this->display();
         }
 
         public function add(){
 
             if(IS_POST){
-                //´´½¨Ä£ĞÍ
-                $supplier_model = D('Supplier');
-                //ÊÕ¼¯Êı¾İ
-                $supplier_model->create();
-                //±£´æÊı¾İ
-                //ÌáÊ¾Ìø×ª
+                //åˆ›å»ºæ¨¡å‹
+               $this->_model  = D('Supplier');
+                //æ”¶é›†æ•°æ®
+               if( $this->_model->create()===false){
+                   $this->error(get_error($this->_model));
+               }
+                //ä¿å­˜æ•°æ®
+                //æç¤ºè·³è½¬
+                if( $this->_model->add()===false){
+                    $this->error(get_error($this->_model));
+                }else{
+                   $this->success('æ·»åŠ æˆåŠŸ',U('index'));
+               }
 
             }else{
-                //µ÷ÓÃÊÓÍ¼
+                //è°ƒç”¨è§†å›¾
                 $this->display();
             }
 
         }
-
-        public function edit(){
-
+        //ä¿®æ”¹ä¾›åº”å•†
+        public function edit($id){
+            if(IS_POST){
+                //éªŒè¯
+                if($this->_model->create()===false){
+                    $this->error(get_error($this->_model));
+                }
+                //ä¿®æ”¹
+                if($this->_model->save()===false){
+                    $this->error(get_error($this->_model));
+                }
+                $this->success('ä¿®æ”¹æˆåŠŸ',U('index'));
+            }else{
+                //è·å–æ•°æ®
+               $row = $this->_model->find($id);
+                //å±•ç¤ºé¡µé¢
+                $this->assign('row',$row);
+                $this->display('add');
+            }
 
 
         }
-
-        public function remove(){
-
-
-
+        //é€»è¾‘åˆ é™¤ä¾›åº”å•†,åœ¨åŸæ¥çš„åå­—ä¸Šæ·»åŠ _delä¸‹åˆ’çº¿
+        public function remove($id){
+            //è°ƒç”¨æ¨¡å‹åˆ é™¤
+            //exp å»æ‰å‡½æ•°å¤–çš„å¼•å·
+            $data = [
+                'id'=>$id,
+                'status'=>-1,
+                'name'=>['exp','concat(name,"_del")'],
+            ];
+            //setFieldæ›´æ”¹å­—æ®µå†…å®¹
+            if($this->_model->setField($data) === false){
+                $this->error(get_error($this->_model));
+            }else{
+                $this->success('åˆ é™¤æˆåŠŸ',U('index'));
+            }
         }
+
 
 }

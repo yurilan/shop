@@ -4,7 +4,7 @@
  * User: sone
  * Date: 2016/6/24
  * Time: 19:22
- * 将错误信息加载转换成有序列表.
+ * 灏嗛敊璇俊鎭姞杞借浆鎹㈡垚鏈夊簭鍒楄〃.
  */
 /**
  * @param \Think\Model $model
