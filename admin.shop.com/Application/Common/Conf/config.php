@@ -7,6 +7,9 @@ return array(
         '__CSS__'=> BASE_URL . '/Public/css',
         '__JS__'=> BASE_URL . '/Public/js',
         '__IMG__'=> BASE_URL . '/Public/images',
+        '__UPLOADIFY__'=> BASE_URL . '/Public/etc/uploadify',
+         '__LAYER__'=> BASE_URL . '/Public/etc/layer',
+        '__ZTREE__'=> BASE_URL . '/Public/etc/ztree',
     ],
 
     /* 数据库设置 */
@@ -27,8 +30,9 @@ return array(
     'DB_SLAVE_NO'           =>  '', // 指定从服务器序号
     //分页相关的配置
     'PAGE_SETTING'=>[
-        'PAGE_SIZE'=>5,
+        'PAGE_SIZE'=>4,
         'PAGE_THEME'=>'%HEADER% %FIRST% %UP_PAGE% %LINK_PAGE% %DOWN_PAGE% %END%',
     ],
+    'UPLOAD_SETTING'=>  require 'upload.php',
 );
 

@@ -10,7 +10,6 @@
 // +----------------------------------------------------------------------
 
 // 应用入口文件
-
 // 检测PHP环境
 if(version_compare(PHP_VERSION,'5.3.0','<'))  die('require PHP > 5.3.0 !');
 
@@ -18,14 +17,14 @@ if(version_compare(PHP_VERSION,'5.3.0','<'))  die('require PHP > 5.3.0 !');
 define('APP_DEBUG',True);
 
 //定义一个项目目录常量
-define('ROOT_PATH',  __DIR__ . '/');
+define('ROOT_PATH', __DIR__ . '/');
 //使用单模块模式
-define('BIND_MODULE','Admin');//由于前后台已经分成不同的域名，所以使用多模块方式已经没有必要了
+define('BIND_MODULE', 'Admin');//由于前后台已经分成不同的域名，所以使用多模块方式已经没有必要了
 
 // 定义应用目录
-define('APP_PATH',ROOT_PATH . '/Application/');
+define('APP_PATH', ROOT_PATH . '/Application/');
 
 // 引入ThinkPHP入口文件
-require dirname(ROOT_PATH) .'/ThinkPHP/ThinkPHP.php';
+require dirname(ROOT_PATH) . '/ThinkPHP/ThinkPHP.php';
 
 // 亲^_^ 后面不需要任何代码了 就是如此简单
