@@ -7,6 +7,7 @@
         <link href="__CSS__/general.css" rel="stylesheet" type="text/css" />
         <link href="__CSS__/main.css" rel="stylesheet" type="text/css" />
         <css href='__CSS__/page.css'/>
+        <css href='__TREEGRID__/css/jquery.treegrid.css'/>
     </head>
     <body>
         <h1>
@@ -24,22 +25,16 @@
         </div>
         <form method="post" action="" name="listForm">
             <div class="list-div" id="listDiv">
-                <table cellpadding="3" cellspacing="1">
+                <table cellpadding="3" cellspacing="1" class="tree">
                     <tr>
                         <th>商品分类名称</th>
-                        <th>左节点</th>
-                        <th>右节点</th>
-                        <th>父级节点</th>
                         <th>商品分类描述</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
                     <foreach name="rows" item="row">
-                        <tr>
-                            <td class="first-cell">{:str_repeat('&nbsp;',$row['level']*5)}{$row.name}</td>
-                            <td align="center">{$row.lft}</td>
-                            <td align="center">{$row.rght}</td>
-                            <td align="center">{$row.parent_id}</td>
+                        <tr class="treegrid-{$row.id} <neq name='row.parent_id' value='0' >treegrid-parent-{$row.parent_id}</neq>">
+                            <td class="first-cell">{$row.name}</td>
                             <td align="center">{$row.intro}</td>
                             <td align="center"><if condition="$row.status eq 1"><img src="__IMG__/yes.gif" /><else /><img src="__IMG__/no.gif" /></if></td>
                             <td align="center">
@@ -63,5 +58,10 @@
             共执行 3 个查询，用时 0.021251 秒，Gzip 已禁用，内存占用 2.194 MB<br />
             版权所有 &copy; 2005-2012 上海商派网络科技有限公司，并保留所有权利。
         </div>
+        <js href="__JS__/jquery.min.js"/>
+        <js href="__TREEGRID__/js/jquery.treegrid.js"/>
+    <script type="application/javascript">
+            $('.tree').treegrid();
+    </script>
     </body>
 </html>

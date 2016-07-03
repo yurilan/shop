@@ -10,6 +10,8 @@ return array(
         '__UPLOADIFY__'=> BASE_URL . '/Public/etc/uploadify',
          '__LAYER__'=> BASE_URL . '/Public/etc/layer',
         '__ZTREE__'=> BASE_URL . '/Public/etc/ztree',
+        '__TREEGRID__'=> BASE_URL . '/Public/etc/treegrid',
+        '__UEDITOR__'=> BASE_URL . '/Public/etc/ueditor',
     ],
 
     /* 数据库设置 */

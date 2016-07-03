@@ -14,12 +14,12 @@ class UploadController extends Controller{
 
     public function uploadImg(){
         //创建upload对象
-       $options = C('UPLOAD_SETTING');
-//        $options =[
-//            'rootPath'=>ROOT_PATH,
-//            'savePath'=>'uploads/',
-//
-//        ];
+     // $options = C('UPLOAD_SETTING');
+        $options =[
+            'rootPath'=>ROOT_PATH,
+            'savePath'=>'uploads/',
+
+        ];
         $upload = new Upload($options);
         $file_info = $upload->uploadOne($_FILES['file_data']);
        // var_dump($file_info);exit;

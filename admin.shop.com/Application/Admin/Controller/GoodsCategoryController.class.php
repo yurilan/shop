@@ -37,24 +37,22 @@ class GoodsCategoryController extends Controller {
             if($this->_model->create()===false){
                 $this->error(get_error($this->_model));
             }
-            if($this->_model->add() === false){
+            if($this->_model->addCategory() === false){
                 $this->error(get_error($this->_model));
             }
             $this->success('添加成功',U('index'));
-        } else {
-            $goods_categories = json_encode($this->_model->getList());
-            $this->assign('goods_categories', $goods_categories);
+        }else{
+            $this->before_view();
             $this->display();
         }
     }
-
     public function edit($id) {
         if (IS_POST) {
             //收集数据
             if($this->_model->create()===false){
                 $this->error(get_error($this->_model));
             }
-            if($this->_model->save() === false){
+            if($this->_model->saveCategory() === false){
                 $this->error(get_error($this->_model));
             }
             $this->success('修改成功',U('index'));
@@ -68,13 +66,18 @@ class GoodsCategoryController extends Controller {
             $this->display('add');
         }
     }
-
     public function remove($id) {
-        if($this->_model->delete($id)===false){
+        if($this->_model->deleteCategory($id)===false){
             $this->error(get_error($this->_model));
         }else{
             $this->success('删除成功',U('index'));
         }
     }
-
+    //添加顶级分类
+    public function before_view(){
+        $goods_categories = $this->_model->getList();
+        array_unshift($goods_categories,['id'=>0,'name'=>'顶级分类','parent_id'=>0]);
+        $goods_categories = json_encode($goods_categories);
+        $this->assign('goods_categories',$goods_categories);
+    }
 }

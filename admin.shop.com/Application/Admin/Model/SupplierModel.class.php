@@ -38,5 +38,7 @@ class SupplierModel extends Model{
         //返回数据
         return compact(['rows','page_html']);
     }
-
+    public function getList() {
+        return $this->where(['status' => ['gt', 0]])->select();
+    }
 }
