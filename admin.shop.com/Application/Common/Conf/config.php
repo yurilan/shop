@@ -36,5 +36,22 @@ return array(
         'PAGE_THEME'=>'%HEADER% %FIRST% %UP_PAGE% %LINK_PAGE% %DOWN_PAGE% %END%',
     ],
     'UPLOAD_SETTING'=>  require 'upload.php',
+    //RBAC访问忽略列表
+    'ACCESS_IGNORE'=>[
+        'IGNORE'=>[//所有用户都可见
+            'Admin/Admin/login',
+            'Admin/Captcha/captcha',
+        ],
+        'USER_IGNORE'=>[//登陆用户都可见
+            'Admin/Index/index',
+            'Admin/Index/top',
+            'Admin/Index/menu',
+            'Admin/Index/main',
+            'Admin/Admin/logout',
+            'Admin/Admin/restpwd',
+        ],
+    ],
+
+    'COOKIE_PREFIX'=>'admin_shop_com_',
 );
 

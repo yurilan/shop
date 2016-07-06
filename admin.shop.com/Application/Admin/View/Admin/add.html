@@ -28,17 +28,19 @@
         <div class="main-div">
             <form method="post" action="{:U()}" enctype="multipart/form-data" >
                 <table cellspacing="1" cellpadding="3" width="100%">
-                    <present name="row">
+
                     <tr>
                         <td class="label">用户名称</td>
                         <td>
+                            <present name="row">
                             {$row.username}
                             <else/>
                             <input type="text" name="username" maxlength="60" value="{$row.username}" />
                             <span class="require-field">*</span>
+                            </present>
                         </td>
                     </tr>
-                        </present>
+
                     <notpresent name="row">
                     <tr>
                         <td class="label">用户密码</td>

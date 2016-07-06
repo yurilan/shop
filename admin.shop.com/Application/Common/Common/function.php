@@ -56,3 +56,48 @@ function arr2select(array $data,$name_field='name',$value_field='id',$name = '',
 function salt_mcrypt($password,$salt){
     return md5(md5($password).$salt);
 }
+/**
+ * 获取和设置用户session
+ * @param mixed $data
+ * @return type
+ */
+function login($data=null){
+    if(is_null($data)){
+        return session('USERINFO');
+    }else{
+        //不是null传$data放进session中
+        session('USERINFO',$data);
+    }
+}
+/**
+ * 获取和设置用户权限session
+ * @param mixed $data
+ * @return type
+ */
+function permission_pathes($data=null){
+    if(is_null($data)){
+        $pathes = session('PERMISSION_PATHES');
+        if(!is_array($pathes)){
+            $pathes = [];
+        }
+        return $pathes;
+    }else{
+        session('PERMISSION_PATHES',$data);
+    }
+}
+/**
+ * 获取和设置用户权限ID session
+ * @param mixed $data
+ * @return type
+ */
+function permission_pids($data=null){
+    if(is_null($data)){
+        $pids = session('PERMISSION_PIDS');
+        if(!is_array($pids)){
+            $pids = [];
+        }
+        return $pids;
+    }else{
+        session('PERMISSION_PIDS',$data);
+    }
+}

@@ -11,6 +11,7 @@ namespace Admin\Model;
 
 use Think\Model;
 use Think\Page;
+use Think\Verify;
 
 class AdminModel extends Model{
     //批量验证//开启批量验证
@@ -21,13 +22,17 @@ class AdminModel extends Model{
      */
     protected $_validate =[
         ['username','require','用户名不能为空'],
-        ['username','','用户名已被占用',self::EXISTS_VALIDATE,'unique'],
-        ['password','require','密码不能为空',self::EXISTS_VALIDATE],
+        ['username','','用户名已被占用',self::EXISTS_VALIDATE,'unique','register'],
+        ['password','require','密码不能为空',self::EXISTS_VALIDATE,'',],
         ['password','6,16','密码长度不合法',self::EXISTS_VALIDATE,'length'],
         ['repassword','password','两次密码不一致',self::EXISTS_VALIDATE,'confirm'],
         ['email','require','邮箱不能为空'],
         ['email','email','邮箱格式不合法',self::EXISTS_VALIDATE],
         ['email','','邮箱已被占用',self::EXISTS_VALIDATE,'unique'],
+
+
+       // ['captcha','require','验证码必填',self::EXISTS_VALIDATE,'','login'],
+        //['captcha','check_captcha','验证码不正确',self::EXISTS_VALIDATE,'callback','login']
     ];
     /**
      * 1. add_time 当前时间
@@ -35,10 +40,17 @@ class AdminModel extends Model{
      * @var type
      */
     protected $_auto =[
-        ['add_time',NOW_TIME],
-        ['salt','\Org\Util\String::randString',self::MODEL_INSERT,'function']
+        ['add_time',NOW_TIME,'register'],
+        ['salt','\Org\Util\String::randString','register','function']
     ];
-
+    /**验证传进来的值 ,进行验证码验证
+     * @param $code
+     * @return bool
+     */
+    public function check_captcha($code){
+        $verify = new Verify();
+        return $verify->check($code);
+    }
     //创建管理员
     public function addAdmin(){
         //加盐加密
@@ -159,8 +171,149 @@ class AdminModel extends Model{
         }
         $this->commit();
         return true;
-
     }
 
+    /**
+     * 登录方法
+     */
+        public function login(){
 
+            $username = $this->data['username'];
+            $password = $this->data['password'];
+            //为了安全我们将用户信息都删除
+            session('USERINFO',null);
+            //先验证用户名是否正确
+            $userinfo = $this->getByUsername($username);
+
+            if(!$userinfo){
+                $this->error='用户名验证错误';
+                return false;
+            }
+            //验证密码匹配盐是否正确
+                $passwords = salt_mcrypt($password,$userinfo['salt']);
+                if($passwords!=$userinfo['password']){
+                    $this->error='密码不正确';
+                    return false;
+                }
+            //保存登录的时间和IP
+            $data = [
+                'last_login_time' => NOW_TIME,
+                'last_login_ip' => get_client_ip(),
+                'id'=> $userinfo['id'],
+            ];
+            $this->save($data);
+
+
+            //把用户信息保存到session中
+                login($userinfo);
+            //删除用户相关的token记录
+            $admin_token_model = M('AdminToken');
+            $admin_token_model->delete($userinfo['id']);
+            //获取用户权限
+            $this->getPermissions($userinfo['id']);
+                //自动登陆相关
+            if (I('post.remember')) {
+                //生成cookie和数据表数据
+                $data = [
+                    'admin_id' => $userinfo['id'],
+                    'token'    => \Org\Util\String::randString(40),
+                ];
+
+                cookie('USER_AUTO_LOGIN_TOKEN', $data, 604800); //保存一个星期
+
+                $admin_token_model->add($data);
+            }
+            return $userinfo;
+        }
+
+    /**获取用户权限列表,从角色和额外权限的关联表中获取,
+     * @param $admin_id
+     * @return bool
+     */
+        private function getPermissions($admin_id){
+//SELECT DISTINCT path FROM admin_role AS ar JOIN
+// role_permission AS rp ON ar.`role_id`=rp.`role_id` JOIN
+// permission AS p ON p.`id`=rp.`permission_id` WHERE path<>''
+// AND admin_id=1
+            //筛选的条件 空路径的,id想等的
+            $cond = [
+                'path' => ['neq',''],
+                'admin_id'=>$admin_id,
+            ];
+            //根据用户ID找到他对应的权限id和权限
+            $permissions = M()->distinct(true)->field('permission_id,path')->table('admin_role')->alias('ar')->join('__ROLE_PERMISSION__ as rp ON ar.role_id =rp.role_id')->join('__PERMISSION__ as p ON p.id =rp.permission_id')->where($cond)->select();
+
+            //-------------
+            $pids = [];
+            $paths       = [];
+            foreach ($permissions as $permission) {
+                $paths[] = $permission['path'];
+                $pids[] = $permission['permission_id'];
+            }
+            permission_pathes($paths);
+            permission_pids($pids);
+            return true;
+        }
+
+    /**自动登录
+     * @return bool|mixed
+     */
+    public function autoLogin() {
+        //从cookie中取出数据
+        $data = cookie('USER_AUTO_LOGIN_TOKEN');
+        if (!$data) {
+            return false;
+        }
+
+        //和数据表中的对比
+        $admin_token_model = M('AdminToken');
+        if (!$admin_token_model->where($data)->count()) {
+            return false;
+        }
+        //为了避免token被窃取,自动登陆一次就重置
+        $admin_token_model->delete($data['admin_id']);
+        //生成cookie和数据表数据
+        $data = [
+            'admin_id' => $data['admin_id'],
+            'token'    => \Org\Util\String::randString(40),
+        ];
+
+        cookie('USER_AUTO_LOGIN_TOKEN', $data, 604800); //保存一个星期
+        $admin_token_model->add($data);//将新token保存到数据表中.
+
+        //如果匹配,保存用户信息到session中
+        $userinfo = $this->find($data['admin_id']);
+        login($userinfo);
+
+        //获取并保存用户权限
+        $this->getPermissions($userinfo['id']);
+        return $userinfo;
+    }
+
+    public function rest(){
+        $id=login()['id'];
+        //从session中获取当前用户的密码和盐;
+        //获取提交的原来的密码
+        $oldpassword = $this->data['password'];
+        //把密码加盐加密
+        $passwords = salt_mcrypt($oldpassword,login()['salt']);
+        //和session中的密码做对比
+        if($passwords!=login()['password']){
+            $this->error='原密码不正确';
+            return false;
+        }
+        $newpassword=I('post.newpassword');
+        $newpassword = salt_mcrypt($newpassword,login()['salt']);
+        //如果获取的值不为空
+        $data=[];
+        if($newpassword){
+            $data=[
+                'id'=>$id,
+                'password'=>$newpassword,
+            ];
+
+            $this->save($data);
+        }
+
+    }
 }

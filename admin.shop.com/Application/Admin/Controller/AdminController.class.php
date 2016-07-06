@@ -36,7 +36,7 @@ class AdminController extends Controller{
 
     public function add(){
           if(IS_POST){
-              if($this->_model->create()===false){
+              if($this->_model->create('','register')===false){
                   $this->error(get_error($this->_model));
               }
               if($this->_model->addAdmin()===false){
@@ -86,5 +86,52 @@ class AdminController extends Controller{
         $Role_model = D('Role');
         $roles = $Role_model->getList();
         $this->assign('roles',json_encode($roles));
+    }
+
+
+    public function login(){
+        if(IS_POST){
+
+            if($this->_model->create()===false){
+                $this->error(get_error($this->_model));
+            }
+            if($this->_model->login()===false){
+                $this->error(get_error($this->_model));
+            }
+            $this->success('登录成功',U('Index/index'));
+
+        }else{
+
+            $this->display();
+        }
+
+    }
+
+    /**
+     * 退出方法 ,清空session cookie;
+     */
+    public function logout() {
+        session(null);
+        cookie(null);
+        $this->success('退出成功',U('login'));
+    }
+
+    /**
+     * 修改密码
+     */
+    public function restpwd(){
+
+        if(IS_POST){
+
+            if($this->_model->create()===false){
+                $this->error(get_error($this->_model));
+            }
+            if($this->_model->rest()===false){
+                $this->error('原密码不正确');
+            }
+            $this->success('密码修改成功',U('Admin/login'));
+        }else{
+            $this->display();
+        }
     }
  }
